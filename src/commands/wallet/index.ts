@@ -8,6 +8,7 @@ import { listCommandDescription, buildInvalidCommandUsage } from '../../render/t
 import { CliError, getErrorOutput } from '../../errors'
 import { kmsService } from '../../services/kms'
 import { configService } from '../../services'
+import { newVaultService } from '../../services/oAuthVault'
 
 export default class Wallet extends Command {
   static command = 'affinidi wallet'
@@ -34,23 +35,22 @@ export default class Wallet extends Command {
     // }
     const { id, operation, input, output } = args
 
+    const { projectAccessToken } = newVaultService.getProjectToken()
     const inputData = JSON.parse(readFileSync(resolvePath(process.cwd(), input)).toString('utf-8'))
-    console.log({ inputData })
 
     if (operation === 'sign-credential') {
       CliUx.ux.action.start('Signing credential')
-      const response = await kmsService.signCredential(id, { unsignedCredential: inputData })
+      const response = await kmsService.signCredential(projectAccessToken, id, {
+        unsignedCredential: inputData,
+      })
       writeFileSync(
         resolvePath(process.cwd(), output),
         JSON.stringify(response.signedCredential, null, 2),
       )
     } else if (operation === 'sign-jwt') {
       CliUx.ux.action.start('Signing jwt')
-      const response = await kmsService.signJwt(id, inputData)
-      writeFileSync(
-        resolvePath(process.cwd(), output),
-        response.jwt,
-      )
+      const response = await kmsService.signJwt(projectAccessToken, id, inputData)
+      writeFileSync(resolvePath(process.cwd(), output), response.jwt)
       displayOutput({
         itemToDisplay: response.jwt,
         flag: flags.output,
@@ -72,7 +72,6 @@ export default class Wallet extends Command {
   }
 
   async catch(error: CliError) {
-    console.log(error)
     CliUx.ux.action.stop('failed')
     const outputFormat = configService.getOutputFormat()
     const optionsDisplay: DisplayOptions = {

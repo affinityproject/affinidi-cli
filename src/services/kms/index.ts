@@ -1,58 +1,8 @@
-import jwkToPem from 'jwk-to-pem'
-import jsonwebtoken from 'jsonwebtoken'
 import { CliError } from '../../errors'
 import { Api as KmsAPI } from './kms.api'
 
-export const KMS_URL = 'https://4vbg213wpj.execute-api.ap-southeast-1.amazonaws.com/prod'
+export const KMS_URL = 'https://g9g6a7p0oj.execute-api.ap-southeast-1.amazonaws.com/dev/kms'
 const SERVICE = 'KMS'
-
-/// ///////////////////// TEST CODE ///////////////////////
-const jwkPair = {
-  kty: 'RSA',
-  n: '0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw',
-  e: 'AQAB',
-  d: 'X4cTteJY_gn4FYPsXB8rdXix5vwsg1FLN5E3EaG6RJoVH-HLLKD9M7dx5oo7GURknchnrRweUkC7hT5fJLM0WbFAKNLWY2vv7B6NqXSzUvxT0_YSfqijwp3RTzlBaCxWp4doFk5N2o8Gy_nHNKroADIkJ46pRUohsXywbReAdYaMwFs9tv8d_cPVY3i07a3t8MN6TNwm0dSawm9v47UiCl3Sk5ZiG7xojPLu4sbg1U2jx4IBTNBznbJSzFHK66jT8bgkuqsk0GjskDJk19Z4qwjwbsnn4j2WBii3RL-Us2lGVkY8fkFzme1z0HbIkfz0Y6mqnOYtqc0X4jfcKoAC8Q',
-  p: '83i-7IvMGXoMXCskv73TKr8637FiO7Z27zv8oj6pbWUQyLPQBQxtPVnwD20R-60eTDmD2ujnMt5PoqMrm8RfmNhVWDtjjMmCMjOpSXicFHj7XOuVIYQyqVWlWEh6dN36GVZYk93N8Bc9vY41xy8B9RzzOGVQzXvNEvn7O0nVbfs',
-  q: '3dfOR9cuYq-0S-mkFLzgItgMEfFzB2q3hWehMuG0oCuqnb3vobLyumqjVZQO1dIrdwgTnCdpYzBcOfW5r370AFXjiWft_NGEiovonizhKpo9VVS78TzFgxkIdrecRezsZ-1kYd_s1qDbxtkDEgfAITAG9LUnADun4vIcb6yelxk',
-  dp: 'G4sPXkc6Ya9y8oJW9_ILj4xuppu0lzi_H7VTkS8xj5SdX3coE0oimYwxIi2emTAue0UOa5dpgFGyBJ4c8tQ2VF402XRugKDTP8akYhFo5tAA77Qe_NmtuYZc3C3m3I24G2GvR5sSDxUyAN2zq8Lfn9EUms6rY3Ob8YeiKkTiBj0',
-  dq: 's9lAH9fggBsoFR8Oac2R_E2gw282rT2kGOAhvIllETE1efrA6huUUvMfBcMpn8lqeW6vzznYY5SSQF7pMdC_agI3nG8Ibp1BUb0JUiraRNqUfLhcQb_d9GF4Dh7e74WbRsobRonujTYN1xCaP6TO61jvWrX-L18txXw494Q_cgk',
-  qi: 'GyM_p6JrXySiz1toFgKbWV-JdI3jQ4ypu9rbMWx3rQJBfmt0FoYzgUIZEVFEcOqwemRN81zoDAaa-Bk0KWNGDjJHZDdDmFhW3AN7lI-puxk_mHZGJ11rxyR8O55XLSe3SPmRfKwZI6yU24ZxvQKFYItdldUKGzO6Ia6zTKhAVRU',
-} as const
-
-const privateKey = jwkToPem(jwkPair, { private: true })
-const payloadMock = {
-  projectId: 'workshop-pj-id',
-  region: 'ap-southeast-1',
-  iss: 'https://iam.affinidi.io/authz',
-  type: 'ProjectTokenAuth',
-  resource: 'ari:identity-domain:ap-southeast-1:workshop-pj-id:seed',
-}
-
-const createTokenForSeedOperation = () => {
-  return jsonwebtoken.sign(payloadMock, privateKey, {
-    expiresIn: 3600,
-    algorithm: 'RS256',
-    keyid: 'default1',
-  })
-}
-const createTokenForSpecificSeedOperation = (seedId: string) => {
-  return jsonwebtoken.sign(
-    {
-      ...payloadMock,
-      resource: `ari:identity-domain:ap-southeast-1:workshop-pj-id:seed/${seedId}`,
-    },
-    privateKey,
-    { expiresIn: 3600, algorithm: 'RS256', keyid: 'default1' },
-  )
-}
-const createTokenForSpecificKeyOperation = (keyId: string) => {
-  return jsonwebtoken.sign(
-    { ...payloadMock, resource: `ari:identity-domain:ap-southeast-1:workshop-pj-id:key/${keyId}` },
-    privateKey,
-    { expiresIn: 3600, algorithm: 'RS256', keyid: 'default1' },
-  )
-}
-/// ///////////////////// END TEST CODE ///////////////////////
 
 class KmsService {
   constructor(
@@ -65,29 +15,28 @@ class KmsService {
     }),
   ) {}
 
-  public createSeed = async (token = createTokenForSeedOperation()): Promise<{ id?: string }> => {
+  public createSeed = async (token: string): Promise<{ id?: string }> => {
     try {
-      const result = await this.client.seeds.createSeed({
+      const { data } = await this.client.seeds.createSeed({
         headers: {
           Authorization: token,
           'content-type': 'application/json',
           Accept: 'application/json',
         },
       })
-      return result.data
-    } catch (error: any) {
+
+      return data
+    } catch (error) {
       throw new CliError(error?.message, error.response.status, SERVICE)
     }
   }
 
-  public createKey = async (
-    seedId: string,
-    token = createTokenForSpecificSeedOperation(seedId),
-  ): Promise<{ id?: string }> => {
+  public createKey = async (token: string, seedId: string): Promise<{ id?: string }> => {
     try {
       const result = await this.client.seeds.createKey(
         seedId,
-        { derivationPath: "m/44'/60'/0'/1" },
+        // eslint-disable-next-line
+        { derivationPath: "m/44'/60'/0'/1", seedId: 'no' } as any,
         {
           headers: {
             Authorization: token,
@@ -97,12 +46,13 @@ class KmsService {
         },
       )
       return result.data
-    } catch (error: any) {
+    } catch (error) {
+      console.error(error)
       throw new CliError(error?.message, error.response.status, SERVICE)
     }
   }
 
-  public listSeed = async (token = createTokenForSeedOperation()) => {
+  public listSeed = async (token: string) => {
     try {
       const result = await this.client.seeds.listSeed(
         {},
@@ -115,16 +65,13 @@ class KmsService {
         },
       )
       return result.data
-    } catch (error: any) {
+    } catch (error) {
       throw new CliError(error?.message, error.response.status, SERVICE)
     }
   }
 
-  public signJwt = async (
-    keyId: string,
-    jwtData: any,
-    token = createTokenForSpecificKeyOperation(keyId),
-  ) => {
+  // eslint-disable-next-line
+  public signJwt = async (token: string, keyId: string, jwtData: any) => {
     try {
       const result = await this.client.keys.signJwt(keyId, jwtData, {
         headers: {
@@ -134,16 +81,16 @@ class KmsService {
         },
       })
       return result.data
-    } catch (error: any) {
-      console.log(error)
+    } catch (error) {
       throw new CliError(error?.message, error.response.status, SERVICE)
     }
   }
 
   public signCredential = async (
+    token: string,
     keyId: string,
+    // eslint-disable-next-line
     credData: { unsignedCredential: any },
-    token = createTokenForSpecificKeyOperation(keyId),
   ) => {
     try {
       const result = await this.client.keys.signCredential(keyId, credData, {
@@ -154,7 +101,7 @@ class KmsService {
         },
       })
       return result.data
-    } catch (error: any) {
+    } catch (error) {
       throw new CliError(error?.message, error.response.status, SERVICE)
     }
   }

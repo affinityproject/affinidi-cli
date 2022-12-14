@@ -6,6 +6,7 @@ import { DisplayOptions, displayOutput } from '../../middleware/display'
 import { configService } from '../../services/config'
 import { ViewFormat } from '../../constants'
 import { kmsService } from '../../services/kms'
+import { newVaultService } from '../../services/oAuthVault'
 
 export default class Project extends Command {
   static command = 'affinidi create wallet'
@@ -38,14 +39,21 @@ export default class Project extends Command {
       throw new CliError('available options are "kms"', StatusCodes.UNAUTHORIZED, 'userManagement')
     }
 
-    CliUx.ux.action.start('Creating seed and key')
-    const seedData = await kmsService.createSeed()
-    const keyData = await kmsService.createKey(seedData.id)
+    const { projectAccessToken } = newVaultService.getProjectToken()
+    console.log(projectAccessToken)
 
-    displayOutput({ itemToDisplay: JSON.stringify({ seedId: seedData.id, keyId: keyData.id }, null, '  '), flag: flags.output })
+    CliUx.ux.action.start('Creating seed and key')
+    const seedData = await kmsService.createSeed(projectAccessToken)
+    const keyData = await kmsService.createKey(projectAccessToken, seedData.id)
+
+    displayOutput({
+      itemToDisplay: JSON.stringify({ seedId: seedData.id, keyId: keyData.id }, null, '  '),
+      flag: flags.output,
+    })
   }
 
   async catch(error: CliError) {
+    console.error(error)
     CliUx.ux.action.stop('failed')
     const outputFormat = configService.getOutputFormat()
     const optionsDisplay: DisplayOptions = {
