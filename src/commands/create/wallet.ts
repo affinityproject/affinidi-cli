@@ -40,7 +40,6 @@ export default class Project extends Command {
     }
 
     const { projectAccessToken } = newVaultService.getProjectToken()
-    console.log(projectAccessToken)
 
     CliUx.ux.action.start('Creating seed and key')
     const seedData = await kmsService.createSeed(projectAccessToken)

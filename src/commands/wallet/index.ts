@@ -1,10 +1,9 @@
 import { readFileSync, writeFileSync } from 'fs'
 import { resolve as resolvePath } from 'path'
 import { CliUx, Command, Interfaces } from '@oclif/core'
-import { StatusCodes } from 'http-status-codes'
 import { DisplayOptions, displayOutput } from '../../middleware/display'
 
-import { listCommandDescription, buildInvalidCommandUsage } from '../../render/texts'
+import { listCommandDescription } from '../../render/texts'
 import { CliError, getErrorOutput } from '../../errors'
 import { kmsService } from '../../services/kms'
 import { configService } from '../../services'
