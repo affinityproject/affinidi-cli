@@ -9,6 +9,13 @@ const VERIFY_URL = 'https://affinity-verifier.prod.affinity-project.org'
 const ANALYTICS_URL = 'https://analytics-stream.staging.affinity-project.org'
 
 generateApi({
+  name: 'kms.api.ts',
+  output: path.resolve(process.cwd(), './src/services/kms'),
+  url: 'http://localhost:3001',
+  httpClientType: 'axios',
+}).catch(console.error)
+
+generateApi({
   name: 'analytics.api.ts',
   output: path.resolve(process.cwd(), './src/services/analytics'),
   url: `${ANALYTICS_URL}/api-json`,

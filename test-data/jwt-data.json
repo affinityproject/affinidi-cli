@@ -1,0 +1,9 @@
+{
+  "header": {
+    "alg": "HS256",
+    "typ": "JWT"
+  },
+  "payload": {
+    "yau": "Connectors there!"
+  }
+}

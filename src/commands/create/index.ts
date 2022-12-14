@@ -6,7 +6,7 @@ import { listCommandDescription, buildInvalidCommandUsage } from '../../render/t
 export default class Create extends Command {
   static command = 'affinidi create'
 
-  static summary = 'Use this command to create a new Affinidi project.'
+  static summary = 'Use this command to create a resource.'
 
   static usage = 'create [COMMAND] [ARGS...]'
 
@@ -20,6 +20,10 @@ export default class Create extends Command {
     {
       description: 'creates a new schemas:',
       command: '$ <%= config.bin %> <%= command.id %> schema',
+    },
+    {
+      description: 'creates a new wallet:',
+      command: '$ <%= config.bin %> <%= command.id %> wallet',
     },
   ]
 
