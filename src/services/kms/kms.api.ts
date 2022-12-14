@@ -34,6 +34,17 @@ export interface ListSeedResultDto {
 }
 
 /**
+ * DTO contains list of keys records
+ */
+export interface ListKeysResultDto {
+  records?: {
+    id?: string
+    projectId?: string
+    derivationPath?: string
+  }[]
+}
+
+/**
  * DTO contains configuration to create a key from the seed
  */
 export interface CreateKeysConfigInputDto {
@@ -268,11 +279,13 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @tags seed
      * @name CreateSeed
      * @request POST:/seeds
+     * @secure
      */
     createSeed: (params: RequestParams = {}) =>
       this.request<CreateSeedResultDto, Error>({
         path: `/seeds`,
         method: 'POST',
+        secure: true,
         format: 'json',
         ...params,
       }),
@@ -283,6 +296,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @tags seed
      * @name ListSeed
      * @request GET:/seeds
+     * @secure
      */
     listSeed: (
       query?: {
@@ -294,6 +308,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/seeds`,
         method: 'GET',
         query: query,
+        secure: true,
         format: 'json',
         ...params,
       }),
@@ -304,12 +319,14 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @tags key
      * @name CreateKey
      * @request POST:/seeds/{id}/keys
+     * @secure
      */
     createKey: (id: string, data: CreateKeysConfigInputDto, params: RequestParams = {}) =>
       this.request<CreateKeysConfigResultDto, Error>({
         path: `/seeds/${id}/keys`,
         method: 'POST',
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: 'json',
         ...params,
@@ -321,11 +338,13 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @tags seed
      * @name RevokeSeed
      * @request PATCH:/seeds/{id}/revoke
+     * @secure
      */
     revokeSeed: (id: string, params: RequestParams = {}) =>
       this.request<void, Error>({
         path: `/seeds/${id}/revoke`,
         method: 'PATCH',
+        secure: true,
         ...params,
       }),
 
@@ -335,6 +354,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @tags seed
      * @name ImportSeed
      * @request POST:/seeds/import
+     * @secure
      */
     importSeed: (
       data: ImportSeedMnemonicInputDto | ImportSeedRawInputDto,
@@ -344,6 +364,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/seeds/import`,
         method: 'POST',
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: 'json',
         ...params,
@@ -355,11 +376,13 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @tags seed
      * @name ExportSeedAsMnemonic
      * @request POST:/seeds/{id}/export-mnemonic
+     * @secure
      */
     exportSeedAsMnemonic: (id: string, params: RequestParams = {}) =>
       this.request<ExportSeedResultDto, Error>({
         path: `/seeds/${id}/export-mnemonic`,
         method: 'POST',
+        secure: true,
         format: 'json',
         ...params,
       }),
@@ -369,14 +392,33 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * No description
      *
      * @tags key
+     * @name ListKeys
+     * @request GET:/keys
+     * @secure
+     */
+    listKeys: (params: RequestParams = {}) =>
+      this.request<ListKeysResultDto, Error>({
+        path: `/keys`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags key
      * @name SignCredential
      * @request POST:/keys/{id}/sign-credential
+     * @secure
      */
     signCredential: (id: string, data: SignCredentialInputDto, params: RequestParams = {}) =>
       this.request<SignCredentialResultDto, Error>({
         path: `/keys/${id}/sign-credential`,
         method: 'POST',
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: 'json',
         ...params,
@@ -388,12 +430,14 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @tags key
      * @name SignJwt
      * @request POST:/keys/{id}/sign-jwt
+     * @secure
      */
     signJwt: (id: string, data: SignJwtInputDto, params: RequestParams = {}) =>
       this.request<SignJwtResultDto, Error>({
         path: `/keys/${id}/sign-jwt`,
         method: 'POST',
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: 'json',
         ...params,

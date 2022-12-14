@@ -52,18 +52,15 @@ class KmsService {
     }
   }
 
-  public listSeed = async (token: string) => {
+  public listKeys = async (token: string) => {
     try {
-      const result = await this.client.seeds.listSeed(
-        {},
-        {
-          headers: {
-            Authorization: token,
-            'content-type': 'application/json',
-            Accept: 'application/json',
-          },
+      const result = await this.client.keys.listKeys({
+        headers: {
+          Authorization: token,
+          'content-type': 'application/json',
+          Accept: 'application/json',
         },
-      )
+      })
       return result.data
     } catch (error) {
       throw new CliError(error?.message, error.response.status, SERVICE)

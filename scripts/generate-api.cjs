@@ -7,13 +7,13 @@ const IAM_URL = 'https://affinidi-iam.prod.affinity-project.org'
 const ISSUANCE_URL = 'https://console-vc-issuance.prod.affinity-project.org'
 const VERIFY_URL = 'https://affinity-verifier.prod.affinity-project.org'
 const ANALYTICS_URL = 'https://analytics-stream.staging.affinity-project.org'
-//
-// generateApi({
-//   name: 'kms.api.ts',
-//   output: path.resolve(process.cwd(), './src/services/kms'),
-//   url: 'http://localhost:3001',
-//   httpClientType: 'axios',
-// }).catch(console.error)
+
+generateApi({
+  name: 'kms.api.ts',
+  output: path.resolve(process.cwd(), './src/services/kms'),
+  url: 'http://localhost:3001',
+  httpClientType: 'axios',
+}).catch(console.error)
 
 generateApi({
   name: 'analytics.api.ts',
@@ -56,10 +56,10 @@ generateApi({
   url: `${VERIFY_URL}/api/swagger`,
   httpClientType: 'axios',
 }).catch(console.error)
-
-generateApi({
-  name: 'iam.api.ts',
-  output: path.resolve(process.cwd(), './src/services/genesis/iam'),
-  url: 'http://localhost:3001',
-  httpClientType: 'axios',
-}).catch(console.error)
+//
+// generateApi({
+//   name: 'iam.api.ts',
+//   output: path.resolve(process.cwd(), './src/services/genesis/iam'),
+//   url: 'http://localhost:3001',
+//   httpClientType: 'axios',
+// }).catch(console.error)
