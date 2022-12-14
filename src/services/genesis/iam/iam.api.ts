@@ -41,36 +41,14 @@ export interface CreateProjectScopedTokenOutput {
 export interface ProjectDto {
   id: string
   name: string
-  projectType?: string
-  additionalData?: string
 }
 
 export interface CreateProjectInput {
   name: string
 }
 
-export interface UpdateProjectInput {
-  name: string
-}
-
-export type ProjectList = ProjectDto[]
-
-export interface UserDto {
-  id: string
-  name: string
-  projectId?: string
-}
-
-export interface CreateUserInput {
-  name: string
-}
-
-export interface UpdateUserInput {
-  name: string
-}
-
-export interface UserList {
-  users: UserDto[]
+export interface ProjectList {
+  projects: ProjectDto[]
 }
 
 export interface PolicyDto {
@@ -311,53 +289,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * No description
      *
      * @tags projects
-     * @name GetProject
-     * @request GET:/projects/{projectId}
-     */
-    getProject: (projectId: string, params: RequestParams = {}) =>
-      this.request<ProjectDto, ServiceErrorResponse>({
-        path: `/projects/${projectId}`,
-        method: 'GET',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags projects
-     * @name UpdateProject
-     * @request PUT:/projects/{projectId}
-     */
-    updateProject: (projectId: string, data: UpdateProjectInput, params: RequestParams = {}) =>
-      this.request<ProjectDto, ServiceErrorResponse>({
-        path: `/projects/${projectId}`,
-        method: 'PUT',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags projects
-     * @name DeleteProject
-     * @request DELETE:/projects/{projectId}
-     */
-    deleteProject: (projectId: string, params: RequestParams = {}) =>
-      this.request<ProjectDto, ServiceErrorResponse>({
-        path: `/projects/${projectId}`,
-        method: 'DELETE',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags projects
      * @name CreateProject
      * @request POST:/projects
      * @secure
@@ -386,191 +317,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/projects`,
         method: 'GET',
         secure: true,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags projects
-     * @name GetUser
-     * @request GET:/projects/{projectId}/users/{userId}
-     */
-    getUser: (userId: string, projectId: string, params: RequestParams = {}) =>
-      this.request<UserDto, ServiceErrorResponse>({
-        path: `/projects/${projectId}/users/${userId}`,
-        method: 'GET',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags projects
-     * @name UpdateUser
-     * @request PUT:/projects/{projectId}/users/{userId}
-     */
-    updateUser: (
-      projectId: string,
-      userId: string,
-      data: UpdateUserInput,
-      params: RequestParams = {},
-    ) =>
-      this.request<UserDto, ServiceErrorResponse>({
-        path: `/projects/${projectId}/users/${userId}`,
-        method: 'PUT',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags projects
-     * @name DeleteUser
-     * @request DELETE:/projects/{projectId}/users/{userId}
-     */
-    deleteUser: (userId: string, projectId: string, params: RequestParams = {}) =>
-      this.request<UserDto, ServiceErrorResponse>({
-        path: `/projects/${projectId}/users/${userId}`,
-        method: 'DELETE',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags projects
-     * @name CreateUser
-     * @request POST:/projects/{projectId}/users
-     */
-    createUser: (projectId: string, data: CreateUserInput, params: RequestParams = {}) =>
-      this.request<UserDto, ServiceErrorResponse>({
-        path: `/projects/${projectId}/users`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags projects
-     * @name ListUser
-     * @request GET:/projects/{projectId}/users
-     */
-    listUser: (projectId: string, params: RequestParams = {}) =>
-      this.request<UserList, any>({
-        path: `/projects/${projectId}/users`,
-        method: 'GET',
-        format: 'json',
-        ...params,
-      }),
-  }
-  policies = {
-    /**
-     * No description
-     *
-     * @tags policies
-     * @name GetFromObjectsPolicy
-     * @request GET:/policies/{policyId}
-     */
-    getFromObjectsPolicy: (policyId: string, params: RequestParams = {}) =>
-      this.request<PolicyDto, ServiceErrorResponse>({
-        path: `/policies/${policyId}`,
-        method: 'GET',
-        format: 'json',
-        ...params,
-      }),
-  }
-  users = {
-    /**
-     * No description
-     *
-     * @tags policies
-     * @name GetPolicy
-     * @request GET:/users/{userId}/policies/{policyId}
-     */
-    getPolicy: (policyId: string, userId: string, params: RequestParams = {}) =>
-      this.request<PolicyDto, ServiceErrorResponse>({
-        path: `/users/${userId}/policies/${policyId}`,
-        method: 'GET',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags policies
-     * @name UpdatePolicy
-     * @request PUT:/users/{userId}/policies/{policyId}
-     */
-    updatePolicy: (
-      userId: string,
-      policyId: string,
-      data: UpdatePolicyInput,
-      params: RequestParams = {},
-    ) =>
-      this.request<PolicyDto, ServiceErrorResponse>({
-        path: `/users/${userId}/policies/${policyId}`,
-        method: 'PUT',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags policies
-     * @name DeletePolicy
-     * @request DELETE:/users/{userId}/policies/{policyId}
-     */
-    deletePolicy: (policyId: string, userId: string, params: RequestParams = {}) =>
-      this.request<PolicyDto, ServiceErrorResponse>({
-        path: `/users/${userId}/policies/${policyId}`,
-        method: 'DELETE',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags policies
-     * @name CreatePolicy
-     * @request POST:/users/{userId}/policies
-     */
-    createPolicy: (userId: string, data: CreatePolicyInput, params: RequestParams = {}) =>
-      this.request<PolicyDto, ServiceErrorResponse>({
-        path: `/users/${userId}/policies`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags policies
-     * @name ListPolicy
-     * @request GET:/users/{userId}/policies
-     */
-    listPolicy: (userId: string, params: RequestParams = {}) =>
-      this.request<PolicyList, any>({
-        path: `/users/${userId}/policies`,
-        method: 'GET',
         format: 'json',
         ...params,
       }),

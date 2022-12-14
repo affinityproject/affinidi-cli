@@ -48,7 +48,7 @@ class NewVaultService {
     this.store.setUserToken(token)
   }
 
-  public setProjectToken = (token: ProjectToken, projectId: string): void => {
+  public setProjectToken = (token: unknown, projectId: string): void => {
     const project = JSON.parse(JSON.stringify(token))
     const projectToken: ProjectToken = {
       projectId,

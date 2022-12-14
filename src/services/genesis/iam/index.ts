@@ -1,5 +1,10 @@
 import { CliError } from '../../../errors'
-import { CreateProjectInput, ProjectDto, Api as IamApi } from './iam.api'
+import {
+  CreateProjectInput,
+  ProjectDto,
+  Api as IamApi,
+  CreateProjectScopedTokenOutput,
+} from './iam.api'
 
 export const GENESIS_IAM_URL = 'https://rdoibywdwi.execute-api.ap-southeast-1.amazonaws.com/prod'
 const SERVICE = 'genesis-iam'
@@ -39,7 +44,9 @@ class GenesisIAMService {
     limit: number,
   ): Promise<Array<ProjectDto>> => {
     try {
-      const { data: projects } = await this.client.projects.listProject({
+      const {
+        data: { projects },
+      } = await this.client.projects.listProject({
         headers: {
           Authorization: `Bearer ${token}`,
           'content-type': 'application/json',
@@ -53,6 +60,28 @@ class GenesisIAMService {
       }
 
       return projects.slice(skip, skip + limit)
+    } catch (error) {
+      throw new CliError(error?.message, error.response.status, SERVICE)
+    }
+  }
+
+  public createProjectScopedToken = async (
+    token: string,
+    projectId: string,
+  ): Promise<CreateProjectScopedTokenOutput> => {
+    try {
+      const { data } = await this.client.createProjectScopedToken.createProjectScopedToken(
+        { projectId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'content-type': 'application/json',
+            Accept: 'application/json',
+          },
+        },
+      )
+
+      return data
     } catch (error) {
       throw new CliError(error?.message, error.response.status, SERVICE)
     }

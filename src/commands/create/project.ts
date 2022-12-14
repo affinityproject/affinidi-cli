@@ -64,17 +64,10 @@ export default class Project extends Command {
         ...generateUserMetadata(account.label),
       },
     }
-    const data = await axios.post(
-      'https://rdoibywdwi.execute-api.ap-southeast-1.amazonaws.com/prod/create-project-scoped-token',
-      {
-        projectId: projectData.id,
-      },
-      {
-        headers: { authorization: `Bearer ${accessToken}` },
-      },
-    )
-    const projectToken = data.data
-    newVaultService.setProjectToken(projectToken, projectData.id)
+
+    const data = await genesisIAMService.createProjectScopedToken(accessToken, projectData.id)
+    newVaultService.setProjectToken(data, projectData.id)
+
     await analyticsService.eventsControllerSend(analyticsData)
     displayOutput({ itemToDisplay: JSON.stringify(projectData, null, '  '), flag: flags.output })
   }
