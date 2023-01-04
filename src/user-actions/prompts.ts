@@ -60,6 +60,11 @@ export const applicationName = async (text: string = 'name of application'): Pro
   return prompt
 }
 
+export const schemaId = async (text: string = 'schema ID'): Promise<string> => {
+  const prompt = await CliUx.ux.prompt(text, { required: true })
+  return prompt
+}
+
 export const withProxy = async (
   text: string = 'create backend to hide credentials [y/n]',
 ): Promise<boolean> => {

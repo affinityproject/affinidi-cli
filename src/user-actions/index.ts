@@ -12,6 +12,7 @@ export {
   pathToVc,
   applicationName,
   withProxy,
+  schemaId,
 } from './prompts'
 
 export { selectProject } from './inquirer'

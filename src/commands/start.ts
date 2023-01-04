@@ -17,7 +17,9 @@ import { displayOutput } from '../middleware/display'
 import {
   backToMainMenu,
   backToProjectMenu,
+  backtoSchemaMenu,
   changeActiveProject,
+  chooseSchmeaFromList,
   createProject,
   createSchema,
   generateApplication,
@@ -29,10 +31,14 @@ import {
   showDetailedProject,
   showDetailedSchema,
   showSchemas,
+  typeSchemaId,
   verifyVC,
   wizardMap,
   WizardMenus,
 } from '../constants'
+import ListSchemas from './list/schemas'
+import ShowSchema from './show/schema'
+import { schemaId } from '../user-actions'
 // import { applicationName, pathToVc, withProxy } from '../user-actions'
 // import VerifyVc from './verify-vc'
 // import GenerateApplication from './generate-application'
@@ -54,6 +60,8 @@ export default class Start extends Command {
     [WizardMenus.PROJECT_MENU, this.getProjectmenu.prototype],
     [WizardMenus.SCHEMA_MENU, this.getSchemamenu.prototype],
     [WizardMenus.GO_BACK_PROJECT_MENU, this.getGoBackProjectMenu.prototype],
+    [WizardMenus.GO_BACK_SCHEMA_MENU, this.getGoBackSchemaMenu.prototype],
+    [WizardMenus.SHOW_DETAILED_SCHEMA_MENU, this.showDetailedSchemaMenu.prototype],
   ])
 
   public async run(): Promise<void> {
@@ -113,8 +121,8 @@ export default class Start extends Command {
         await this.getProjectmenu()
         break
       case manageSchemas:
-        // this.breadcrumbs.push(nextStep)
-        // await this.getSchemamenu()
+        this.breadcrumbs.push(nextStep)
+        await this.getSchemamenu()
         break
       case generateApplication:
         // GenerateApplication.run([
@@ -178,8 +186,12 @@ export default class Start extends Command {
     const nextStep = await selectNextStep(wizardMap.get(WizardMenus.SCHEMA_MENU))
     switch (nextStep) {
       case showSchemas:
+        await this.listSchemas()
+        this.breadcrumbs.push(showDetailedSchema)
+        await this.getGoBackSchemaMenu()
         break
       case showDetailedSchema:
+        await this.showDetailedSchemaMenu()
         break
       case createSchema:
         break
@@ -194,6 +206,12 @@ export default class Start extends Command {
     }
   }
 
+  private async listSchemas() {
+    CliUx.ux.info(this.getStatus())
+    await ListSchemas.run(['-w'])
+    this.breadcrumbs.push(showSchemas)
+  }
+
   private async getGoBackProjectMenu() {
     CliUx.ux.info(this.getStatus())
 
@@ -201,6 +219,42 @@ export default class Start extends Command {
     switch (nextStep) {
       case backToProjectMenu:
         await this.getProjectmenu()
+        break
+      case backToMainMenu:
+        await this.getMainmenu()
+        break
+      default:
+        process.exit(0)
+    }
+  }
+
+  private async showDetailedSchemaMenu() {
+    CliUx.ux.info(this.getStatus())
+
+    const nextStep = await selectNextStep(wizardMap.get(WizardMenus.SHOW_DETAILED_SCHEMA_MENU))
+    switch (nextStep) {
+      case chooseSchmeaFromList:
+        await this.listSchemas()
+        this.breadcrumbs.push(showDetailedSchema)
+        await this.getGoBackSchemaMenu()
+        break
+      case typeSchemaId:
+        await ShowSchema.run([`${await schemaId()}`])
+        this.breadcrumbs.push(showDetailedSchema)
+        await this.getGoBackSchemaMenu()
+        break
+      default:
+        process.exit(0)
+    }
+  }
+
+  private async getGoBackSchemaMenu() {
+    CliUx.ux.info(this.getStatus())
+
+    const nextStep = await selectNextStep(wizardMap.get(WizardMenus.GO_BACK_SCHEMA_MENU))
+    switch (nextStep) {
+      case backtoSchemaMenu:
+        await this.getSchemamenu()
         break
       case backToMainMenu:
         await this.getMainmenu()

@@ -60,7 +60,8 @@ export default class Schema extends Command {
 
   public async run(): Promise<void> {
     const { args, flags } = await this.parse(Schema)
-    if (!isAuthenticated() && args['schema-id'].includes('@did:elem')) {
+    const schemaId = args['schema-id']
+    if (!isAuthenticated() && schemaId.includes('@did:elem')) {
       throw new CliError(Unauthorized, StatusCodes.UNAUTHORIZED, 'schema')
     }
     const { account } = getSession()
@@ -71,7 +72,7 @@ export default class Schema extends Command {
       const activeProject = vaultService.getActiveProject()
       apiKey = activeProject.apiKey.apiKeyHash
     }
-    const schema = await schemaManagerService.getById(args['schema-id'], apiKey)
+    const schema = await schemaManagerService.getById(schemaId, apiKey)
     const analyticsData: EventDTO = {
       name: 'VC_SCHEMAS_READ',
       category: 'APPLICATION',

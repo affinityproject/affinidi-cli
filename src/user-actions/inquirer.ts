@@ -1,4 +1,5 @@
 import * as inquirer from 'inquirer'
+import { SchemaDto } from '../services/schema-manager/schema-manager.api'
 import { ProjectDto } from '../services/iam/iam.api'
 
 export const selectProject = async (
@@ -18,6 +19,27 @@ export const selectProject = async (
     ])
     .then((answer) => {
       return answer.projectId.split(' ')[0]
+    })
+}
+
+export const selectSchema = async (
+  schemaData: SchemaDto[],
+  maxIdLength: number,
+): Promise<string> => {
+  return inquirer
+    .prompt([
+      {
+        type: 'list',
+        name: 'schemaId',
+        message: 'select a schema',
+        choices: schemaData.map((data) => ({
+          name: `${data.id.padEnd(maxIdLength)} ${data.description} ${data.version} ${data.type}`,
+          value: `${data.id}`,
+        })),
+      },
+    ])
+    .then((answer) => {
+      return answer.schemaId
     })
 }
 
