@@ -13,6 +13,9 @@ export {
   applicationName,
   withProxy,
   schemaId,
+  schemaJSONFilePath,
+  schemaPublicPrivate,
+  schemaDescription,
 } from './prompts'
 
 export { selectProject } from './inquirer'

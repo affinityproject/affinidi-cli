@@ -65,6 +65,25 @@ export const schemaId = async (text: string = 'schema ID'): Promise<string> => {
   return prompt
 }
 
+export const schemaJSONFilePath = async (text: string = 'path to JSON file'): Promise<string> => {
+  const prompt = await CliUx.ux.prompt(text, { required: true })
+  return prompt
+}
+
+export const schemaDescription = async (
+  text: string = 'give a short description for the schema',
+): Promise<string> => {
+  const prompt = await CliUx.ux.prompt(text, { required: true })
+  return prompt
+}
+
+export const schemaPublicPrivate = async (
+  text: string = 'schema is public or unlist [public | unlisted]',
+): Promise<boolean> => {
+  const prompt = await CliUx.ux.prompt(text, { default: 'unlisted' })
+  return prompt.toLowerCase() === 'public'
+}
+
 export const withProxy = async (
   text: string = 'create backend to hide credentials [y/n]',
 ): Promise<boolean> => {
