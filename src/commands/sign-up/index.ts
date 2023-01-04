@@ -1,4 +1,4 @@
-import { Command, CliUx, Flags } from '@oclif/core'
+import { Command, CliUx } from '@oclif/core'
 import * as EmailValidator from 'email-validator'
 
 import {
