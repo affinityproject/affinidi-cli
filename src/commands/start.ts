@@ -2,7 +2,7 @@ import { CliUx, Command } from '@oclif/core'
 import { wizardStatusMessage, wizardStatus, defaultWizardMessages } from '../render/functions'
 
 import { isAuthenticated } from '../middleware/authentication'
-import { selectNextStep } from '../user-actions/inquirer'
+import { schemaPublicPrivate, selectNextStep } from '../user-actions/inquirer'
 import Login from './login'
 import SignUp from './sign-up'
 import { getSession } from '../services/user-management'
@@ -39,12 +39,7 @@ import {
 import ListSchemas from './list/schemas'
 import ShowSchema from './show/schema'
 import CreateSchema from './create/schema'
-import {
-  schemaDescription,
-  schemaId,
-  schemaJSONFilePath,
-  schemaPublicPrivate,
-} from '../user-actions'
+import { schemaDescription, schemaId, schemaJSONFilePath } from '../user-actions'
 // import { applicationName, pathToVc, withProxy } from '../user-actions'
 // import VerifyVc from './verify-vc'
 // import GenerateApplication from './generate-application'

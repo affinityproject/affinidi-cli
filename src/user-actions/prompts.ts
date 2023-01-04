@@ -77,13 +77,6 @@ export const schemaDescription = async (
   return prompt
 }
 
-export const schemaPublicPrivate = async (
-  text: string = 'schema is public or unlist [public | unlisted]',
-): Promise<boolean> => {
-  const prompt = await CliUx.ux.prompt(text, { default: 'unlisted' })
-  return prompt.toLowerCase() === 'public'
-}
-
 export const withProxy = async (
   text: string = 'create backend to hide credentials [y/n]',
 ): Promise<boolean> => {

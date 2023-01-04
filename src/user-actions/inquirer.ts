@@ -43,6 +43,21 @@ export const selectSchema = async (
     })
 }
 
+export const schemaPublicPrivate = async (): Promise<boolean> => {
+  return inquirer
+    .prompt([
+      {
+        type: 'list',
+        name: 'Schema private or unlisted',
+        message: 'Do you want your schema private or unlisted',
+        choices: ['public', 'unlisted'],
+      },
+    ])
+    .then((choice) => {
+      return choice === 'public'
+    })
+}
+
 export const selectNextStep = async (choices: string[]): Promise<string> => {
   return inquirer
     .prompt([
