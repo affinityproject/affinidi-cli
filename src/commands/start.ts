@@ -8,18 +8,9 @@ import { CliError, getErrorOutput } from '../errors'
 import { displayOutput } from '../middleware/display'
 import { wizardMap, WizardMenus } from '../constants'
 import { wizardBreadcrumbs } from '../wizard/attributes'
-import { createProjectF, getProjectMenu } from '../wizard/projectManagement'
-import {
-  getGoBackProjectMenu,
-  getGoBackSchemaMenu,
-  showDetailedSchemaMenu,
-} from '../wizard/submenus'
-import { getSchemaMenu } from '../wizard/shemaManagement'
-import { getAuthmenu, getMainMenu } from '../wizard/menus'
-
-// import { applicationName, pathToVc, withProxy } from '../user-actions'
-// import VerifyVc from './verify-vc'
-// import GenerateApplication from './generate-application'
+import { createProjectF } from '../wizard/projectManagement'
+import { getAuthmenu, menuSelector } from '../wizard/menus'
+import { showDetailedSchemaMenu } from '../wizard/shemaManagement'
 
 export default class Start extends Command {
   static description = 'Start provides a way to guide you from end to end.'
@@ -32,13 +23,13 @@ export default class Start extends Command {
 
   // static breadcrumbs: string[] = []
 
-  menuMap = new Map<WizardMenus, () => void>([
+  menuMap = new Map<WizardMenus, () => Promise<void>>([
     [WizardMenus.AUTH_MENU, getAuthmenu.prototype],
-    [WizardMenus.MAIN_MENU, getMainMenu.prototype],
-    [WizardMenus.PROJECT_MENU, getProjectMenu.prototype],
-    [WizardMenus.SCHEMA_MENU, getSchemaMenu.prototype],
-    [WizardMenus.GO_BACK_PROJECT_MENU, getGoBackProjectMenu.prototype],
-    [WizardMenus.GO_BACK_SCHEMA_MENU, getGoBackSchemaMenu.prototype],
+    [WizardMenus.MAIN_MENU, getAuthmenu.prototype],
+    [WizardMenus.PROJECT_MENU, getAuthmenu.prototype],
+    [WizardMenus.SCHEMA_MENU, getAuthmenu.prototype],
+    [WizardMenus.GO_BACK_PROJECT_MENU, getAuthmenu.prototype],
+    [WizardMenus.GO_BACK_SCHEMA_MENU, getAuthmenu.prototype],
     [WizardMenus.SHOW_DETAILED_SCHEMA_MENU, showDetailedSchemaMenu.prototype],
   ])
 
@@ -52,7 +43,7 @@ export default class Start extends Command {
       await createProjectF()
     }
 
-    await getMainMenu({ projectPrompt: getProjectMenu, schemaPrompt: getSchemaMenu })
+    await menuSelector(WizardMenus.MAIN_MENU)
   }
 
   async catch(error: CliError) {

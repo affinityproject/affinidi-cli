@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import { CliUx } from '@oclif/core'
 
 import { selectNextStep } from '../user-actions/inquirer'
 import { defaultWizardMessages, wizardStatus, wizardStatusMessage } from '../render/functions'
 import { getStatus, logout as logoutF } from './generalFunctions'
 import {
+  backToMainMenu,
   generateApplication,
   issueVC,
   logout,
@@ -16,8 +18,8 @@ import {
 import Login from '../commands/login'
 import SignUp from '../commands/sign-up'
 import { wizardBreadcrumbs } from './attributes'
-import { getProjectMenu } from './projectManagement'
-import { getSchemaMenu } from './shemaManagement'
+import { executeProjectCommand, executeProjectPostCommand } from './projectManagement'
+import { executeSchemaCommand, executeSchemaPostCommand } from './shemaManagement'
 
 export const getAuthmenu = async (): Promise<void> => {
   CliUx.ux.info(
@@ -40,56 +42,62 @@ export const getAuthmenu = async (): Promise<void> => {
   }
 }
 
-interface SubMenuPrompts {
-  projectPrompt: () => Promise<void>
-  schemaPrompt: () => Promise<void>
-}
-
-export const getMainMenu = async ({
-  projectPrompt,
-  schemaPrompt,
-}: SubMenuPrompts): Promise<void> => {
+export const menuSelector = async (step: string) => {
   CliUx.ux.info(getStatus())
-  const nextStep = await selectNextStep(wizardMap.get(WizardMenus.MAIN_MENU))
-  switch (nextStep) {
-    case manageProjects:
-      wizardBreadcrumbs.push(nextStep)
-      await projectPrompt()
+  wizardBreadcrumbs.push(step)
+  let s = ''
+  switch (step) {
+    case WizardMenus.MAIN_MENU:
+    case backToMainMenu:
+      await menuSelector(await selectNextStep(wizardMap.get(WizardMenus.MAIN_MENU)))
       break
+    case WizardMenus.PROJECT_MENU:
+    case manageProjects:
+      s = await selectNextStep(wizardMap.get(WizardMenus.PROJECT_MENU))
+      await executeProjectCommand(s, goToMain, goToProject)
+      break
+    case WizardMenus.GO_BACK_PROJECT_MENU:
+      s = await selectNextStep(wizardMap.get(WizardMenus.GO_BACK_PROJECT_MENU))
+      await executeProjectPostCommand(s, goToMain, goToMainProject)
+      break
+    case WizardMenus.SCHEMA_MENU:
     case manageSchemas:
-      wizardBreadcrumbs.push(nextStep)
-      await schemaPrompt()
+      s = await selectNextStep(wizardMap.get(WizardMenus.SCHEMA_MENU))
+      await executeSchemaCommand(s, goToMain, goToSchema)
+      break
+    case WizardMenus.GO_BACK_SCHEMA_MENU:
+      s = await selectNextStep(wizardMap.get(WizardMenus.GO_BACK_SCHEMA_MENU))
+      await executeSchemaPostCommand(s, goToMain, goToMainSchema)
       break
     case generateApplication:
-      // GenerateApplication.run([
-      //   `-n ${await applicationName()}`,
-      //   `${(await withProxy()) ? '-w' : ''}`,
-      //   '-o',
-      //   'plaintext',
-      // ])
-      // this.breadcrumbs.push(nextStep)
       break
     case issueVC:
       break
     case verifyVC:
-      // await VerifyVc.run([`-d${await pathToVc()}`, '-o', 'plaintext'])
-      // this.breadcrumbs.push(nextStep)
-      break
     case logout:
-      logoutF(nextStep)
+      logoutF(step)
       break
     default:
       process.exit(0)
   }
 }
 
-const buildMenu = () => {
-  let mainMenuFc = ({projectPrompt, schemaPrompt} : type) => () => Promise<void> {}
-  const projectPrompt = getProjectMenu(mainMenuFc)
-  const schemaPrompt = getSchemaMenu(mainMenuFc)
+async function goToMain() {
+  await menuSelector(WizardMenus.MAIN_MENU)
+}
 
+async function goToMainProject() {
+  await menuSelector(WizardMenus.PROJECT_MENU)
+}
 
-  mainMenuFc = ({projectPrompt, schemaPrompt}) => // returning a function that returns a promise void
+async function goToProject() {
+  await menuSelector(WizardMenus.GO_BACK_PROJECT_MENU)
+}
 
-  return mainMenuFc
+async function goToMainSchema() {
+  await menuSelector(WizardMenus.SCHEMA_MENU)
+}
+
+async function goToSchema() {
+  await menuSelector(WizardMenus.GO_BACK_SCHEMA_MENU)
 }
