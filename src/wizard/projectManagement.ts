@@ -19,6 +19,7 @@ import { getSession } from '../services/user-management'
 import { defaultWizardMessages, wizardStatus, wizardStatusMessage } from '../render/functions'
 import { wizardBreadcrumbs } from './attributes'
 import { getGoBackProjectMenu } from './submenus'
+import { getMainMenu } from './menus'
 
 export const useProject = async (): Promise<void> => {
   CliUx.ux.info(getStatus())
@@ -50,40 +51,36 @@ export const createProjectF = async (): Promise<void> => {
   wizardBreadcrumbs.push('create a project')
 }
 
-export const getProjectMenu =
-  async (goToMainMenu: () => Promise<void>) => (): (() => Promise<void>) => {
-    const callback = async () => {
-      CliUx.ux.info(getStatus())
-      const nextStep = await selectNextStep(wizardMap.get(WizardMenus.PROJECT_MENU))
-      switch (nextStep) {
-        case changeActiveProject:
-          await useProject()
-          wizardBreadcrumbs.push(nextStep)
-          await getGoBackProjectMenu()
-          break
-        case createProject:
-          await createProjectF()
-          await getGoBackProjectMenu()
-          break
-        case showActiveProject:
-          await showProject(true)
-          wizardBreadcrumbs.push(nextStep)
-          await getGoBackProjectMenu()
-          break
-        case showDetailedProject:
-          await showProject(false)
-          wizardBreadcrumbs.push(nextStep)
-          await getGoBackProjectMenu()
-          break
-        case backToMainMenu:
-          await goToMainMenu()
-          break
-        case logout:
-          logoutF(nextStep)
-          break
-        default:
-          process.exit(0)
-      }
-    }
-    return callback
+export const getProjectMenu = async (goToMainMenu: () => Promise<void>): Promise<void> => {
+  CliUx.ux.info(getStatus())
+  const nextStep = await selectNextStep(wizardMap.get(WizardMenus.PROJECT_MENU))
+  switch (nextStep) {
+    case changeActiveProject:
+      await useProject()
+      wizardBreadcrumbs.push(nextStep)
+      await getGoBackProjectMenu()
+      break
+    case createProject:
+      await createProjectF()
+      await getGoBackProjectMenu()
+      break
+    case showActiveProject:
+      await showProject(true)
+      wizardBreadcrumbs.push(nextStep)
+      await getGoBackProjectMenu()
+      break
+    case showDetailedProject:
+      await showProject(false)
+      wizardBreadcrumbs.push(nextStep)
+      await getGoBackProjectMenu()
+      break
+    case backToMainMenu:
+      await goToMainMenu()
+      break
+    case logout:
+      logoutF(nextStep)
+      break
+    default:
+      process.exit(0)
   }
+}

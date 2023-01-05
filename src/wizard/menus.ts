@@ -83,8 +83,13 @@ export const getMainMenu = async ({
   }
 }
 
-// const callMenu = () => {
-//   const projectPrompt = getProjectMenu
-//   const schemaPrompt = getSchemaMenu
-//   const mainPrompt = getMainMenu({ projectPrompt, schemaPrompt })
-// }
+const buildMenu = () => {
+  let mainMenuFc = ({projectPrompt, schemaPrompt} : type) => () => Promise<void> {}
+  const projectPrompt = getProjectMenu(mainMenuFc)
+  const schemaPrompt = getSchemaMenu(mainMenuFc)
+
+
+  mainMenuFc = ({projectPrompt, schemaPrompt}) => // returning a function that returns a promise void
+
+  return mainMenuFc
+}
