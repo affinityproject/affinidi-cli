@@ -1,8 +1,7 @@
-/* eslint-disable import/no-cycle */
 import { CliUx } from '@oclif/core'
 
 import { schemaPublicPrivate, selectNextStep } from '../user-actions/inquirer'
-import Start, { getStatus, logout as logoutF } from '../commands/start'
+import { getStatus, logout as logoutF } from './generalFunctions'
 import {
   backToMainMenu,
   createSchema,
@@ -15,13 +14,13 @@ import {
 import ListSchemas from '../commands/list/schemas'
 import CreateSchema from '../commands/create/schema'
 import { schemaDescription, schemaJSONFilePath } from '../user-actions'
+import { wizardBreadcrumbs } from './attributes'
 import { getGoBackSchemaMenu, showDetailedSchemaMenu } from './submenus'
-import { getMainmenu } from './menus'
 
 export const listSchemas = async (): Promise<void> => {
   CliUx.ux.info(getStatus())
   await ListSchemas.run(['-w'])
-  Start.breadcrumbs.push(showSchemas)
+  wizardBreadcrumbs.push(showSchemas)
 }
 
 export const createSchemaF = async (): Promise<void> => {
@@ -34,16 +33,16 @@ export const createSchemaF = async (): Promise<void> => {
     '-d',
     `${await schemaDescription()}`,
   ])
-  Start.breadcrumbs.push(createSchema)
+  wizardBreadcrumbs.push(createSchema)
 }
 
-export const getSchemamenu = async (): Promise<void> => {
+export const getSchemaMenu = async (goToMainMenu: () => Promise<void>): Promise<void> => {
   CliUx.ux.info(getStatus())
   const nextStep = await selectNextStep(wizardMap.get(WizardMenus.SCHEMA_MENU))
   switch (nextStep) {
     case showSchemas:
       await listSchemas()
-      Start.breadcrumbs.push(showDetailedSchema)
+      wizardBreadcrumbs.push(showDetailedSchema)
       await getGoBackSchemaMenu()
       break
     case showDetailedSchema:
@@ -54,7 +53,7 @@ export const getSchemamenu = async (): Promise<void> => {
       await getGoBackSchemaMenu()
       break
     case backToMainMenu:
-      await getMainmenu()
+      await goToMainMenu()
       break
     case logout:
       logoutF(nextStep)

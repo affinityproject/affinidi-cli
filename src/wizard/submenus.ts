@@ -1,4 +1,3 @@
-/* eslint-disable import/no-cycle */
 import { CliUx } from '@oclif/core'
 
 import {
@@ -12,12 +11,14 @@ import {
   WizardMenus,
 } from '../constants'
 import { selectNextStep } from '../user-actions/inquirer'
-import Start, { getStatus } from '../commands/start'
-import { getSchemamenu, listSchemas } from './shemaManagement'
+
+import { getStatus } from './generalFunctions'
+import { getSchemaMenu, listSchemas } from './shemaManagement'
 import { getProjectmenu } from './projectManagement'
 import ShowSchema from '../commands/show/schema'
 import { schemaId } from '../user-actions'
 import { getMainmenu } from './menus'
+import { wizardBreadcrumbs } from './attributes'
 
 export const getGoBackSchemaMenu = async (): Promise<void> => {
   CliUx.ux.info(getStatus())
@@ -25,7 +26,7 @@ export const getGoBackSchemaMenu = async (): Promise<void> => {
   const nextStep = await selectNextStep(wizardMap.get(WizardMenus.GO_BACK_SCHEMA_MENU))
   switch (nextStep) {
     case backtoSchemaMenu:
-      await getSchemamenu()
+      await getSchemaMenu()
       break
     case backToMainMenu:
       await getMainmenu()
@@ -42,12 +43,12 @@ export const showDetailedSchemaMenu = async (): Promise<void> => {
   switch (nextStep) {
     case chooseSchmeaFromList:
       await listSchemas()
-      Start.breadcrumbs.push(showDetailedSchema)
+      wizardBreadcrumbs.push(showDetailedSchema)
       await getGoBackSchemaMenu()
       break
     case typeSchemaId:
       await ShowSchema.run([`${await schemaId()}`])
-      Start.breadcrumbs.push(showDetailedSchema)
+      wizardBreadcrumbs.push(showDetailedSchema)
       await getGoBackSchemaMenu()
       break
     default:
