@@ -7,6 +7,7 @@ export async function configureAppEnvironment(
   issuer: string,
   connectionName?: string,
 ) {
+  console.log(`Path: ${path}`)
   const donEnv = `${path}/.env`
   const donEnvExample = `${path}/.env.example`
 
