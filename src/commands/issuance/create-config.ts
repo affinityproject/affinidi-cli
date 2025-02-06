@@ -20,7 +20,7 @@ export class CreateIssuanceConfig extends BaseCommand<typeof CreateIssuanceConfi
   static summary = 'Creates credential issuance configuration in your active project'
   static examples = [
     '<%= config.bin %> <%= command.id %> -n <value> -w <value> -f credentialSchemas.json',
-    '<%= config.bin %> <%= command.id %> --name <value> --wallet-id <value> --description <value> --credential-offer-duration <value> --file credentialSchemas.json',
+    '<%= config.bin %> <%= command.id %> --name <value> --wallet-id <value> --description <value> --credential-offer-duration <value> --file credentialSchemas.json --[no-]enable-webhook --webhook-url <value>',
   ]
   static flags = {
     name: Flags.string({
@@ -43,6 +43,15 @@ export class CreateIssuanceConfig extends BaseCommand<typeof CreateIssuanceConfi
       summary:
         'Location of a json file containing the list of allowed schemas for creating a credential offer. One or more schemas can be added to the issuance. The credential type ID must be unique',
     }),
+    'enable-webhook': Flags.boolean({
+      summary: 'Enable/Disable VC claim notifications',
+      allowNo: true,
+      default: false,
+    }),
+    'webhook-url': Flags.string({
+      char: 'u',
+      summary: 'URL to receive notifications after VC is claimed',
+    }),
   }
 
   public async run(): Promise<IssuanceConfigDto> {
@@ -56,6 +65,8 @@ export class CreateIssuanceConfig extends BaseCommand<typeof CreateIssuanceConfi
       description: z.string().max(INPUT_LIMIT).optional(),
       'credential-offer-duration': z.number().optional(),
       file: z.string(),
+      'enable-webhook': z.boolean().optional(),
+      'webhook-url': z.string().max(INPUT_LIMIT).url().optional(),
     })
     const validatedFlags = flagsSchema.parse(promptFlags)
 
@@ -144,6 +155,9 @@ export class CreateIssuanceConfig extends BaseCommand<typeof CreateIssuanceConfi
       throw new CLIError(`Provided file is not a valid JSON\n${(error as Error).message}`)
     }
 
+    const webhookUrl = validatedFlags['webhook-url']
+    const isWebhookUrlProvided = !!webhookUrl && webhookUrl.trim().length > 0
+
     const data: CreateIssuanceConfigInput = {
       name:
         flags.name ??
@@ -152,6 +166,16 @@ export class CreateIssuanceConfig extends BaseCommand<typeof CreateIssuanceConfi
       issuerWalletId,
       credentialOfferDuration: flags['credential-offer-duration'] ?? undefined,
       credentialSupported: credentialSupported ?? [],
+      ...((!!validatedFlags['enable-webhook'] || isWebhookUrlProvided) && {
+        webhook: {
+          enabled: !!validatedFlags['enable-webhook'],
+          ...(isWebhookUrlProvided && {
+            endpoint: {
+              url: webhookUrl.trim(),
+            },
+          }),
+        },
+      }),
     }
 
     const credentialSupportedSchema = z.object({
@@ -166,6 +190,14 @@ export class CreateIssuanceConfig extends BaseCommand<typeof CreateIssuanceConfi
       description: z.string().max(INPUT_LIMIT).optional(),
       credentialOfferDuration: z.number().min(1).optional(),
       credentialSupported: z.array(credentialSupportedSchema),
+      webhook: z
+        .object({
+          enabled: z.boolean(),
+          endpoint: z.object({
+            url: z.string().max(INPUT_LIMIT).optional(),
+          }),
+        })
+        .optional(),
     })
     const configInput = schema.parse(data)
 

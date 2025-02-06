@@ -4,19 +4,20 @@ import {
   UpdateIssuanceConfigInput,
   CredentialSupportedObject,
 } from '@affinidi-tdk/credential-issuance-client'
+import { input } from '@inquirer/prompts'
 import { ux, Flags } from '@oclif/core'
 import { CLIError } from '@oclif/core/errors'
 import z from 'zod'
 import { BaseCommand } from '../../common/base-command.js'
 import { promptRequiredParameters } from '../../common/prompts.js'
-import { INPUT_LIMIT } from '../../common/validators.js'
+import { INPUT_LIMIT, validateInputLength } from '../../common/validators.js'
 import { issuanceService } from '../../services/affinidi/cis/service.js'
 
 export class UpdateIssuanceConfig extends BaseCommand<typeof UpdateIssuanceConfig> {
   static summary = 'Updates credential issuance configuration in your active project'
   static examples = [
     '<%= config.bin %> <%= command.id %> -i <value> -f credentialSchemas.json',
-    '<%= config.bin %> <%= command.id %> --id <value> --name <value> --wallet-id <value> --description <value> --credential-offer-duration <value> --file credentialSchemas.json',
+    '<%= config.bin %> <%= command.id %> --id <value> --name <value> --wallet-id <value> --description <value> --credential-offer-duration <value> --file credentialSchemas.json --[no-]enable-webhook --webhook-url <value>',
   ]
   static flags = {
     id: Flags.string({
@@ -43,6 +44,16 @@ export class UpdateIssuanceConfig extends BaseCommand<typeof UpdateIssuanceConfi
       summary:
         'Location of a json file containing the list of allowed schemas for creating a credential offer. One or more schemas can be added to the issuance. The credential type ID must be unique',
     }),
+    'enable-webhook': Flags.boolean({
+      summary: 'Enable/Disable VC claim notifications',
+      allowNo: true,
+      dependsOn: ['webhook-url'],
+    }),
+    'webhook-url': Flags.string({
+      char: 'u',
+      summary: 'URL to receive notifications after VC is claimed',
+      dependsOn: ['enable-webhook'],
+    }),
   }
 
   public async run(): Promise<IssuanceConfigDto> {
@@ -57,8 +68,22 @@ export class UpdateIssuanceConfig extends BaseCommand<typeof UpdateIssuanceConfi
       description: z.string().max(INPUT_LIMIT).optional(),
       'credential-offer-duration': z.number().optional(),
       file: z.string().optional(),
+      'enable-webhook': z.boolean().optional(),
+      'webhook-url': z.string().max(INPUT_LIMIT).url().optional(),
     })
     const validatedFlags = flagsSchema.parse(promptFlags)
+
+    const enableWebhook = validatedFlags['enable-webhook']
+    let webhookUrl = validatedFlags['webhook-url']
+    const isWebhookUrlProvided = !!webhookUrl && webhookUrl.trim().length > 0
+
+    if (enableWebhook && !isWebhookUrlProvided) {
+      if (flags['no-input']) {
+        throw new CLIError('Webhook URL must be provided.')
+      }
+
+      webhookUrl = validateInputLength(await input({ message: 'Enter webhook URL' }), INPUT_LIMIT)
+    }
 
     let credentialSupported: CredentialSupportedObject[] = []
 
@@ -77,6 +102,14 @@ export class UpdateIssuanceConfig extends BaseCommand<typeof UpdateIssuanceConfi
       issuerWalletId: validatedFlags['wallet-id'],
       credentialOfferDuration: validatedFlags['credential-offer-duration'],
       credentialSupported: validatedFlags.file ? credentialSupported : undefined,
+      webhook: {
+        enabled: !!enableWebhook,
+        ...(webhookUrl && {
+          endpoint: {
+            url: webhookUrl,
+          },
+        }),
+      },
     }
 
     const credentialSupportedSchema = z.object({
@@ -91,6 +124,14 @@ export class UpdateIssuanceConfig extends BaseCommand<typeof UpdateIssuanceConfi
       description: z.string().max(INPUT_LIMIT).optional().optional(),
       credentialOfferDuration: z.number().optional(),
       credentialSupported: z.array(credentialSupportedSchema).optional(),
+      webhook: z.object({
+        enabled: z.boolean(),
+        endpoint: z
+          .object({
+            url: z.string().max(INPUT_LIMIT).optional(),
+          })
+          .optional(),
+      }),
     })
     const configInput = schema.parse(data)
 

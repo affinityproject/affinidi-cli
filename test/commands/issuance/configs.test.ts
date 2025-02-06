@@ -42,6 +42,12 @@ const configuration = {
   version: 1,
 }
 
+const configurationWithWebhook = { ...configuration, webhook: { enabled: true, endpoint: { url: 'https://hook.com' } } }
+const configurationWithDisabledWebhook = {
+  ...configuration,
+  webhook: { enabled: false, endpoint: { url: 'https://hook.com' } },
+}
+
 describe('issuance: configs commands', function () {
   describe('issuance:create-config', () => {
     it('creates a configutation and outputs its info', async () => {
@@ -71,6 +77,56 @@ describe('issuance: configs commands', function () {
       expect(response.credentialSupported[0]).to.have.a.property('credentialTypeId')
       expect(response.credentialSupported[0]).to.have.a.property('jsonLdContextUrl')
       expect(response.credentialSupported[0]).to.have.a.property('jsonSchemaUrl')
+    })
+
+    it('creates a configutation with a webhook and outputs its info', async () => {
+      nock(CIS_URL).post('/v1/configurations').reply(200, configurationWithWebhook)
+      nock(CWE_URL)
+        .get('/v1/wallets')
+        .reply(200, { wallets: [didKeyWallet] })
+      const { stdout } = await runCommand([
+        'issuance:create-config',
+        `--name=${configurationWithWebhook.name}`,
+        `--description="${configurationWithWebhook.description}"`,
+        `--wallet-id=${didKeyWallet.id}`,
+        `--credential-offer-duration=${configurationWithWebhook.credentialOfferDuration}`,
+        `--file=${credentialSchemasFilePath}`,
+        `--webhook-url=${configurationWithWebhook.webhook.endpoint.url}`,
+        '--enable-webhook',
+        '--no-input',
+        '--json',
+      ])
+      const response = JSON.parse(stdout)
+      expect(response.webhook).to.have.a.property('enabled')
+      expect(response.webhook).to.have.a.property('endpoint')
+      expect(response.webhook.enabled).to.equal(true)
+      expect(response.webhook.endpoint).to.have.a.property('url')
+      expect(response.webhook.endpoint.url).to.not.be.empty
+    })
+
+    it('creates a configutation with a webhook that is explicitly set to false and outputs its info', async () => {
+      nock(CIS_URL).post('/v1/configurations').reply(200, configurationWithDisabledWebhook)
+      nock(CWE_URL)
+        .get('/v1/wallets')
+        .reply(200, { wallets: [didKeyWallet] })
+      const { stdout } = await runCommand([
+        'issuance:create-config',
+        `--name=${configurationWithDisabledWebhook.name}`,
+        `--description="${configurationWithDisabledWebhook.description}"`,
+        `--wallet-id=${didKeyWallet.id}`,
+        `--credential-offer-duration=${configurationWithDisabledWebhook.credentialOfferDuration}`,
+        `--file=${credentialSchemasFilePath}`,
+        `--webhook-url=${configurationWithDisabledWebhook.webhook.endpoint.url}`,
+        '--no-enable-webhook',
+        '--no-input',
+        '--json',
+      ])
+      const response = JSON.parse(stdout)
+      expect(response.webhook).to.have.a.property('enabled')
+      expect(response.webhook).to.have.a.property('endpoint')
+      expect(response.webhook.enabled).to.equal(false)
+      expect(response.webhook.endpoint).to.have.a.property('url')
+      expect(response.webhook.endpoint.url).to.not.be.empty
     })
   })
 
@@ -134,6 +190,33 @@ describe('issuance: configs commands', function () {
       expect(response.credentialSupported[0]).to.have.a.property('credentialTypeId')
       expect(response.credentialSupported[0]).to.have.a.property('jsonLdContextUrl')
       expect(response.credentialSupported[0]).to.have.a.property('jsonSchemaUrl')
+    })
+
+    it('updates webhook for config', async () => {
+      nock(CIS_URL).put(`/v1/configurations/${configurationWithWebhook.id}`).reply(200, configurationWithWebhook)
+
+      const { stdout } = await runCommand([
+        'issuance:update-config',
+        `--description="${configurationWithWebhook.description}"`,
+        `--id=${configurationWithWebhook.id}`,
+        `--webhook-url=${configurationWithWebhook.webhook.endpoint.url}`,
+        '--enable-webhook',
+      ])
+      const response = JSON.parse(stdout)
+      expect(response).to.have.a.property('name')
+      expect(response).to.have.a.property('description')
+      expect(response).to.have.a.property('issuerDid')
+      expect(response).to.have.a.property('issuerWalletId')
+      expect(response).to.have.a.property('credentialOfferDuration')
+      expect(response).to.have.a.property('format')
+      expect(response).to.have.a.property('issuerUri')
+      expect(response).to.have.a.property('credentialSupported')
+      expect(response.credentialSupported[0]).to.have.a.property('credentialTypeId')
+      expect(response.credentialSupported[0]).to.have.a.property('jsonLdContextUrl')
+      expect(response.credentialSupported[0]).to.have.a.property('jsonSchemaUrl')
+      expect(response.webhook).to.have.a.property('enabled')
+      expect(response.webhook).to.have.a.property('endpoint')
+      expect(response.webhook.enabled).to.equal(true)
     })
   })
 
